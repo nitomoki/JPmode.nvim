@@ -111,9 +111,9 @@ function M.setup()
     end
 
     utils.create_augroup({
-        {'InsertLeave',  '*', [[lua require'config.japanesemode'.JapaneseInsertOff()]]},
-        {'InsertEnter',  '*', [[lua require'config.japanesemode'.JapaneseInsertOn()]]},
-        {'CursorMovedI', '*', [[lua require'config.japanesemode'.move()]]},
+        {'InsertLeave',  '*', [[lua require'JPmode'.JapaneseInsertOff()]]},
+        {'InsertEnter',  '*', [[lua require'JPmode'.JapaneseInsertOn()]]},
+        {'CursorMovedI', '*', [[lua require'JPmode'.move()]]},
     }, 'JapaneseMode')
 
     vim.keymap.set('i', '<C-]>', function() ToggleJapaneseMode("i") end, {noremap = true})
