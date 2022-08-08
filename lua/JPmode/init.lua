@@ -134,12 +134,12 @@ function M.setup(opt)
     end
 
     local id_jpmode = vim.api.nvim_create_augroup("JapaneseMode", {})
-    vim.api.nvim_create_autocmd({ "InsertLeave", "CmdlineLeave" }, {
+    vim.api.nvim_create_autocmd("InsertLeave", {
         group = id_jpmode,
         pattern = "*",
         callback = M.JapaneseInsertOff,
     })
-    vim.api.nvim_create_autocmd({ "InsertEnter", "CmdlineEnter" }, {
+    vim.api.nvim_create_autocmd("InsertEnter", {
         group = id_jpmode,
         pattern = "*",
         callback = M.JapaneseInsertOn,
