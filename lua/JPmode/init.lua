@@ -6,64 +6,51 @@ local check_command = function(arg)
     return vim.v.shell_error
 end
 
-local isJapaneseMode = false
-local winid = nil
+M.isJapaneseMode = false
+local vtxtid = nil
 local ns = vim.api.nvim_create_namespace "JPmodeWindow"
 local hlname = "JPmodeHighlight"
-local opening = false
+local virt_text = { { " JP", "VirtualTextInfo" } }
 vim.api.nvim_set_hl(ns, hlname, { fg = "cyan", bg = "green", bold = true })
 
-local JPwin_open = function()
-    if opening then
-        return true
+local jp_virtualtext_pop = function(arg_id, virt_text)
+    local line = vim.fn.line "."
+    if arg_id then
+        vtxtid = vim.api.nvim_buf_set_extmark(0, ns, line - 1, 0, {
+            id = arg_id,
+            virt_text = virt_text,
+        })
+    else
+        vtxtid = vim.api.nvim_buf_set_extmark(0, ns, line - 1, 0, {
+            virt_text = virt_text,
+        })
     end
-
-    local buf = vim.api.nvim_create_buf(false, true)
-    vim.api.nvim_buf_set_lines(buf, 0, 0, false, { "JP" })
-    vim.api.nvim_buf_add_highlight(buf, ns, hlname, 0, 0, -1)
-    winid = vim.api.nvim_open_win(buf, false, {
-        style = "minimal",
-        relative = "cursor",
-        row = 1,
-        col = 1,
-        height = 1,
-        width = 2,
-        focusable = false,
-        noautocmd = true,
-    })
-    opening = true
 end
 
-local JPwin_close = function()
-    if not opening then
-        return true
+local jp_virtualtext_open = function()
+    if vtxtid then
+        return
     end
-
-    local buf = vim.api.nvim_win_get_buf(winid)
-    vim.api.nvim_win_close(winid, false)
-    vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
-    vim.api.nvim_buf_delete(buf, { force = true })
-    winid = nil
-    opening = false
+    jp_virtualtext_pop(nil, virt_text)
 end
 
-local JPwin_move = function()
-    if not opening then
-        return true
+local jp_virtualtext_close = function()
+    if not vtxtid then
+        return
     end
-    if not winid then
-        return true
-    end
+    vim.api.nvim_buf_del_extmark(0, ns, vtxtid)
+    vtxtid = nil
+end
 
-    vim.api.nvim_win_set_config(winid, {
-        relative = "cursor",
-        row = 1,
-        col = 1,
-    })
+local jp_virtualtext_move = function()
+    if not vtxtid then
+        return
+    end
+    jp_virtualtext_pop(vtxtid, virt_text)
 end
 
 function M.setup(opt)
-    if not opt then
+    if opt then
         M.on_command = opt.on_command or nil
         M.off_command = opt.off_command or nil
     end
@@ -85,34 +72,34 @@ function M.setup(opt)
     end
 
     M.JapaneseInsertOff = function()
-        if isJapaneseMode then
+        if M.isJapaneseMode then
             os.execute(M.off_command)
-            JPwin_close()
+            jp_virtualtext_close()
         end
     end
 
     M.JapaneseInsertOn = function()
-        if isJapaneseMode then
+        if M.isJapaneseMode then
             os.execute(M.on_command)
-            JPwin_open()
+            jp_virtualtext_open()
         end
     end
 
     local ToggleJapaneseMode = function()
-        isJapaneseMode = not isJapaneseMode
+        M.isJapaneseMode = not M.isJapaneseMode
 
         local mode = vim.fn.mode()
         if mode == "i" then
-            if isJapaneseMode then
+            if M.isJapaneseMode then
                 os.execute(M.on_command)
-                JPwin_open()
+                jp_virtualtext_open()
             else
                 os.execute(M.off_command)
-                JPwin_close()
+                jp_virtualtext_close()
             end
         end
         if mode == "c" then
-            if isJapaneseMode then
+            if M.isJapaneseMode then
                 os.execute(M.on_command)
             else
                 os.execute(M.off_command)
@@ -121,16 +108,16 @@ function M.setup(opt)
     end
 
     local OffJapaneseMode = function()
-        if isJapaneseMode then
+        if M.isJapaneseMode then
             local mode = vim.fn.mode()
             if mode == "i" then
                 os.execute(M.off_command)
-                JPwin_close()
+                jp_virtualtext_close()
             elseif mode == "n" or mode == "c" then
                 os.execute(M.off_command)
             end
         end
-        isJapaneseMode = false
+        M.isJapaneseMode = false
     end
 
     local id_jpmode = vim.api.nvim_create_augroup("JapaneseMode", {})
@@ -144,10 +131,10 @@ function M.setup(opt)
         pattern = "*",
         callback = M.JapaneseInsertOn,
     })
-    vim.api.nvim_create_autocmd({ "CursorMovedI" }, {
+    vim.api.nvim_create_autocmd("CursorMovedI", {
         group = id_jpmode,
         pattern = "*",
-        callback = JPwin_move,
+        callback = jp_virtualtext_move,
     })
 
     vim.keymap.set("i", "<C-]>", ToggleJapaneseMode, { noremap = true })
