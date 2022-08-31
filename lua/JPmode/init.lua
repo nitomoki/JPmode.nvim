@@ -167,7 +167,7 @@ M.setup = function(opt)
         end
     else
         vim.keymap.set("i", "<C-]>", jp_mode_toggle, { noremap = true })
-        vim.keymap.set("n", "<C-]>", jp_mode_off, { noremap = true })
+        vim.keymap.set("n", "<C-]>", jp_mode_toggle, { noremap = true })
     end
 end
 
