@@ -13,7 +13,21 @@ local hlname = "JPmodeHighlight"
 local fg = vim.api.nvim_get_hl_by_name("Special", true).foreground
 local bg = vim.api.nvim_get_hl_by_name("CursorLine", true).background
 vim.api.nvim_set_hl(0, hlname, { fg = fg, bg = bg, bold = true })
---local virt_text = { { " JP", "VirtualTextInfo" } }
+
+local isJapaneseMode = false
+
+local jp_keymaps = {
+    {
+        mode = { "n", "o", "v" },
+        maps = {
+            { lhs = [[f,]], rhs = [[f、]] },
+            { lhs = [[f.]], rhs = [[f。]] },
+            { lhs = [[F,]], rhs = [[F、]] },
+            { lhs = [[F.]], rhs = [[F。]] },
+        },
+    },
+}
+
 local virt_text = { { " JP", hlname } }
 
 local jp_virtualtext_pop = function(arg_id, v_text)
@@ -63,7 +77,14 @@ local jp_insertion_start = function()
 end
 
 local jp_mode_on = function()
-    M.isJapaneseMode = true
+    if vim.fn.mode() == "i" then
+        jp_insertion_start()
+    end
+
+    if isJapaneseMode then
+        return
+    end
+
     if M.id_jpmode and not M.aucmd then
         M.aucmd = {}
         M.aucmd.InsL = vim.api.nvim_create_autocmd("InsertLeave", {
@@ -81,28 +102,53 @@ local jp_mode_on = function()
             pattern = "*",
             callback = jp_virtualtext_move,
         })
+        M.aucmd.TeleFP = vim.api.nvim_create_autocmd("User TelescopeFindPre", {
+            group = M.id_jpmode,
+            pattern = "*",
+            callback = jp_insertion_end,
+        })
     end
 
-    if vim.fn.mode() == "i" then
-        jp_insertion_start()
+    for _, table in pairs(jp_keymaps) do
+        for _, mode in pairs(table.mode) do
+            for _, map in pairs(table.maps) do
+                vim.keymap.set(mode, map.lhs, map.rhs, { noremap = true })
+            end
+        end
     end
+
+    isJapaneseMode = true
 end
 
 local jp_mode_off = function()
-    M.isJapaneseMode = false
+    if vim.fn.mode() == "i" then
+        jp_insertion_end()
+    end
+
+    if not isJapaneseMode then
+        return
+    end
+
     if M.aucmd then
         for _, id in pairs(M.aucmd) do
             vim.api.nvim_del_autocmd(id)
         end
         M.aucmd = nil
     end
-    if vim.fn.mode() == "i" then
-        jp_insertion_end()
+
+    for _, table in pairs(jp_keymaps) do
+        for _, mode in pairs(table.mode) do
+            for _, map in pairs(table.maps) do
+                vim.keymap.del(mode, map.lhs, {})
+            end
+        end
     end
+
+    isJapaneseMode = false
 end
 
 local jp_mode_toggle = function()
-    if M.isJapaneseMode then
+    if isJapaneseMode then
         -- On -> Off
         jp_mode_off()
     else
@@ -112,7 +158,7 @@ local jp_mode_toggle = function()
 end
 
 M.setup = function(opt)
-    M.isJapaneseMode = false
+    isJapaneseMode = false
 
     if opt then
         M.on_command = opt.on_command or nil
