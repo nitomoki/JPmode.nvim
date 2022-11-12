@@ -8,6 +8,10 @@ local jp_keymaps = {
             { lhs = [[f.]], rhs = [[f。]] },
             { lhs = [[F,]], rhs = [[F、]] },
             { lhs = [[F.]], rhs = [[F。]] },
+            { lhs = [[t,]], rhs = [[t、]] },
+            { lhs = [[t.]], rhs = [[t。]] },
+            { lhs = [[T,]], rhs = [[T、]] },
+            { lhs = [[T.]], rhs = [[T。]] },
         },
     },
 }
