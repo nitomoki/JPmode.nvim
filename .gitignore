@@ -1,6 +1,7 @@
 .DS_Store
 # Compiled Lua sources
 luac.out
+.luarc.json
 .backup/
 
 # luarocks build files
