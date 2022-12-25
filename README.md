@@ -17,12 +17,21 @@ You need IME, such as ibus, fcitx and macOS's IME, and know the CLI commands tha
 
 This plugin has configurations for some IME, but you shoud set your switching commands (explained below).
 
+### WARNING!!
+This plugin does not plovide any default keymap.
+
 ### Installation
 
-Using [packer.nvim](https://github.com/wbthomason/packer.nvim)
+
+Using [packer.nvim](https://github.com/wbthomason/packer.nvim) (for lazy loading)
 ```lua
 use {
     "nitomoki/JPmode.nvim",
+    module = "JPmode",
+    setup = function()
+        vim.keymap.set("i", "<C-]>", require("JPmode").toggle, { noremap = true })
+        vim.keymap.set("n", "<C-]>", require("JPmode").toggle, { noremap = true })
+    end,
     config = function()
         require("JPmode").setup {
             -- MacOS's config
@@ -35,11 +44,11 @@ use {
 ```
 
 ### Usage
-As default, you can toggle JPmode to press <C-]>.
+Using abave config, you can toggle JPmode to press <C-]>.
 In Insert mode, you will see "JP" virtual text on the right of the cursor line.
 
 ## configuration
-You can configurate the options as the setup function' table.
+You can configurate the options as the setup function's table.
 ```lua
 require("JPmode").setup {
     -- Zenkaku/Hankaku command.
@@ -53,23 +62,5 @@ require("JPmode").setup {
         bg = vim.api.nvim_get_hl_by_name("CursorLine", true).background,
         bold = true,
     },
-
-    -- keymap
-    keymap = {
-        -- insert mode keymap
-        i = {
-            toggle = "<C-]>",
-            -- you can set on/off keymap
-            on = "<F3>",
-            off = "<F4>",
-        },
-        -- normal mode keymap
-        n = {
-            toggle = "<C-]>",
-            -- you can set on/off keymap
-            on = "<F3>",
-            off = "<F4>",
-        },
-    }
 }
 ```

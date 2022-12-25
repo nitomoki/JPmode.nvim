@@ -120,32 +120,10 @@ M.setup = function(opt)
             return -1
         end
     end
-
-    id_jpmode = vim.api.nvim_create_augroup("JapaneseMode", {})
-
-    if opt.keymap then
-        if opt.keymap.i.toggle then
-            vim.keymap.set("i", opt.keymap.i.toggle, jp_mode_toggle, { noremap = true })
-        end
-        if opt.keymap.i.on then
-            vim.keymap.set("i", opt.keymap.i.on, jp_mode_on, { noremap = true })
-        end
-        if opt.keymap.i.off then
-            vim.keymap.set("i", opt.keymap.i.off, jp_mode_off, { noremap = true })
-        end
-        if opt.keymap.n.toggle then
-            vim.keymap.set("n", opt.keymap.n.toggle, jp_mode_toggle, { noremap = true })
-        end
-        if opt.keymap.n.on then
-            vim.keymap.set("n", opt.keymap.n.on, jp_mode_on, { noremap = true })
-        end
-        if opt.keymap.n.off then
-            vim.keymap.set("n", opt.keymap.n.off, jp_mode_off, { noremap = true })
-        end
-    else
-        vim.keymap.set("i", "<C-]>", jp_mode_toggle, { noremap = true })
-        vim.keymap.set("n", "<C-]>", jp_mode_toggle, { noremap = true })
-    end
 end
+
+M.on = jp_mode_on
+M.off = jp_mode_off
+M.toggle = jp_mode_toggle
 
 return M
