@@ -2,14 +2,8 @@ local jp_vtxt = require "JPmode.jp_vtxt"
 local jp_maps = require "JPmode.jp_maps"
 local M = {}
 
-local check_command = function(arg)
-    local cmd = ("call system('type %s')"):format(arg)
-    vim.cmd(cmd)
-    return vim.v.shell_error
-end
-
 local isJapaneseMode = false
-local id_jpmode = nil
+local id_jpmode = vim.api.nvim_create_augroup("JPmode", {})
 local aucmd = nil
 
 local IME = {
@@ -53,11 +47,6 @@ local jp_mode_on = function()
             pattern = "*",
             callback = jp_vtxt.move,
         })
-        aucmd.TeleFP = vim.api.nvim_create_autocmd("User TelescopePreviewerLoaded", {
-            group = id_jpmode,
-            pattern = "*",
-            callback = jp_insertion_end,
-        })
     end
 
     jp_maps.set()
@@ -100,25 +89,14 @@ M.setup = function(opt)
     isJapaneseMode = false
 
     if opt then
-        IME.jp = opt.on_command or nil
-        IME.en = opt.off_command or nil
+        IME.jp = opt.jp or nil
+        IME.en = opt.en or nil
         jp_vtxt.setup(opt)
     end
 
     if not IME.jp and not IME.en then
-        if check_command "ibus" == 0 then
-            IME.jp = "ibus engine 'mozc-jp'"
-            IME.en = "ibus engine 'xkb:jp::jpn'"
-        elseif check_command "fcitx" == 0 then
-            IME.jp = "fcitx-remote -o"
-            IME.en = "fcitx-remote -c"
-        elseif check_command "swim" == 0 then
-            IME.jp = "swim use com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese"
-            IME.en = "swim use com.apple.keylayout.ABC"
-        else
-            print "JPmode: error! cannot be set Japanese IME command. Please set options explicity."
-            return -1
-        end
+        print "JPmode: error! cannot be set Japanese IME command. Please set options explicity."
+        return -1
     end
 end
 

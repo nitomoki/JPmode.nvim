@@ -35,8 +35,8 @@ use {
     config = function()
         require("JPmode").setup {
             -- MacOS's config
-            on_command = "/usr/local/bin/swim use com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese",
-            off_command = "/usr/local/bin/swim use com.apple.keylayout.ABC",
+            jp = "/usr/local/bin/swim use com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese",
+            en = "/usr/local/bin/swim use com.apple.keylayout.ABC",
         }
     end,
 }
@@ -53,8 +53,8 @@ You can configurate the options as the setup function's table.
 require("JPmode").setup {
     -- Zenkaku/Hankaku command.
     -- This example is for MacOS.
-    on_command = "/usr/local/bin/swim use com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese",
-    off_command = "/usr/local/bin/swim use com.apple.keylayout.ABC",
+    jp = "/usr/local/bin/swim use com.apple.inputmethod.Kotoeri.RomajiTyping.Japanese",
+    en = "/usr/local/bin/swim use com.apple.keylayout.ABC",
 
     -- highlight of "JP" virtual text.
     highlight = {
