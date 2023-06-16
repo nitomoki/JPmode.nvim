@@ -1,3 +1,4 @@
+local Job = require "plenary.job"
 local jp_vtxt = require "JPmode.jp_vtxt"
 local jp_maps = require "JPmode.jp_maps"
 local M = {}
@@ -6,30 +7,24 @@ local isJapaneseMode = false
 local id_jpmode = vim.api.nvim_create_augroup("JPmode", {})
 local aucmd = nil
 
-local handle = nil
-
 local IME = {
-    jp = nil,
-    en = nil,
+    jp = { cmd = nil, args = nil },
+    en = { cmd = nil, args = nil },
 }
 
 local jp_insertion_end = function()
-    handle = vim.loop.spawn(IME.en, {
-        args = {},
-        stdio = {},
-    }, function()
-        handle:close()
-    end)
+    Job:new({
+        command = IME.en.cmd,
+        args = IME.en.args,
+    }):sync()
     jp_vtxt.close()
 end
 
 local jp_insertion_start = function()
-    handle = vim.loop.spawn(IME.jp, {
-        args = {},
-        stdio = {},
-    }, function()
-        handle:close()
-    end)
+    Job:new({
+        command = IME.jp.cmd,
+        args = IME.jp.args,
+    }):sync()
     jp_vtxt.open()
 end
 
