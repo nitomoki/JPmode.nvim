@@ -104,6 +104,8 @@ M.setup = function(opt)
         IME.jp = opt.jp or nil
         IME.en = opt.en or nil
         jp_vtxt.setup(opt)
+    else
+        jp_vtxt.setup()
     end
 
     if not IME.jp and not IME.en then
