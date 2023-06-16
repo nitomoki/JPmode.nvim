@@ -6,18 +6,30 @@ local isJapaneseMode = false
 local id_jpmode = vim.api.nvim_create_augroup("JPmode", {})
 local aucmd = nil
 
+local handle = nil
+
 local IME = {
     jp = nil,
     en = nil,
 }
 
 local jp_insertion_end = function()
-    os.execute(IME.en)
+    handle = vim.loop.spawn(IME.en, {
+        args = {},
+        stdio = {},
+    }, function()
+        handle:close()
+    end)
     jp_vtxt.close()
 end
 
 local jp_insertion_start = function()
-    os.execute(IME.jp)
+    handle = vim.loop.spawn(IME.jp, {
+        args = {},
+        stdio = {},
+    }, function()
+        handle:close()
+    end)
     jp_vtxt.open()
 end
 
