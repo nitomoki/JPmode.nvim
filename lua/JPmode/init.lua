@@ -1,6 +1,6 @@
 local Job = require "plenary.job"
-local jp_vtxt = require "JPmode.jp_vtxt"
-local jp_maps = require "JPmode.jp_maps"
+local jp_vtxt = require "JPmode.virtual_text"
+local jp_maps = require "JPmode.mappings"
 local M = {}
 
 local isJapaneseMode = false
@@ -25,11 +25,14 @@ local jp_insertion_start = function()
         command = IME.jp.cmd,
         args = IME.jp.args,
     }):sync()
-    jp_vtxt.open()
+    if vim.fn.mode() == "i" then
+        jp_vtxt.open()
+    end
 end
 
 local jp_mode_on = function()
-    if vim.fn.mode() == "i" then
+    local mode = vim.fn.mode()
+    if mode == "i" or mode == "c" then
         jp_insertion_start()
     end
 
@@ -40,6 +43,11 @@ local jp_mode_on = function()
     if id_jpmode and not aucmd then
         aucmd = {}
         aucmd.InsL = vim.api.nvim_create_autocmd("InsertLeave", {
+            group = id_jpmode,
+            pattern = "*",
+            callback = jp_insertion_end,
+        })
+        aucmd.CmdL = vim.api.nvim_create_autocmd("CmdlineLeave", {
             group = id_jpmode,
             pattern = "*",
             callback = jp_insertion_end,
@@ -62,7 +70,8 @@ local jp_mode_on = function()
 end
 
 local jp_mode_off = function()
-    if vim.fn.mode() == "i" then
+    local mode = vim.fn.mode()
+    if mode == "i" or mode == "c" then
         jp_insertion_end()
     end
 
