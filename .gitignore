@@ -3,6 +3,7 @@
 luac.out
 .luarc.json
 .backup/
+.tests/
 
 # luarocks build files
 *.src.rock
